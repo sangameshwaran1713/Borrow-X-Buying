@@ -8,11 +8,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           
           <div className="space-y-4 md:col-span-1">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-tr from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-3.5">
+              <img src="/logo-icon.png" alt="Borrow Logo" className="h-11 w-11 object-contain drop-shadow-md shrink-0" />
+              <div>
+                <span className="text-xl font-black text-white tracking-tight block leading-none">Borrow</span>
+                <span className="text-[10px] text-teal-400 font-extrabold uppercase tracking-[0.15em] block mt-1">Instead of Buy</span>
               </div>
-              <span className="text-lg font-bold text-white tracking-tight">Borrow</span>
             </div>
             <p className="text-xs leading-relaxed text-slate-400">
               Hyperlocal peer-to-peer item sharing platform. Reduce consumer waste, save money, and connect with verified neighbors.

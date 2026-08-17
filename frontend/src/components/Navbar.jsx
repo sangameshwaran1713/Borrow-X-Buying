@@ -69,15 +69,19 @@ export default function Navbar({ onOpenAuthModal }) {
         <div className="flex justify-between items-center h-16">
           
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2.5 group">
-            <div className="w-10 h-10 bg-gradient-to-tr from-primary-600 to-secondary-600 rounded-xl flex items-center justify-center shadow-md shadow-primary-500/20 group-hover:scale-105 transition-transform">
-              <ShieldCheck className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <span className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-primary-700 to-secondary-700 dark:from-white dark:via-primary-400 dark:to-secondary-400">
+          <Link to="/" className="flex items-center space-x-3.5 group">
+            <img
+              src="/logo-icon.png"
+              alt="Borrow Badge"
+              className="h-11 w-11 sm:h-12 sm:w-12 object-contain drop-shadow-md group-hover:scale-105 transition-transform shrink-0"
+            />
+            <div className="flex flex-col justify-center">
+              <span className="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#001F4D] via-[#0055A5] to-[#0D9488] dark:from-white dark:via-primary-300 dark:to-teal-300 leading-none">
                 Borrow
               </span>
-              <span className="text-xs block text-slate-400 font-medium -mt-1">Instead of Buy</span>
+              <span className="text-[10px] sm:text-[11px] block text-[#0D9488] dark:text-teal-400 font-extrabold uppercase tracking-[0.15em] mt-1">
+                Instead of Buy
+              </span>
             </div>
           </Link>
 

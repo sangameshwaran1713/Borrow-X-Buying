@@ -328,9 +328,11 @@ export default function LoginRegisterModal({ isOpen, onClose }) {
         </button>
 
         <div className="text-center mb-6">
-          <div className="w-12 h-12 bg-gradient-to-tr from-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-primary-500/20">
-            <ShieldCheck className="w-6 h-6 text-white" />
-          </div>
+          <img
+            src="/logo-icon.png"
+            alt="Borrow Emblem"
+            className="h-16 w-16 object-contain mx-auto mb-2 drop-shadow-lg hover:scale-105 transition-transform"
+          />
           <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             {isRegister ? 'Join the Borrow Community' : 'Welcome Back'}
           </h3>
