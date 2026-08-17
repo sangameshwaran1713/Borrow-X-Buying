@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, Paperclip, MessageSquare, Check, CheckCheck } from 'lucide-react';
-import axios from 'axios';
+import api from '../utils/api';
 
 export default function ChatDrawer({ isOpen, onClose, requestId, currentUserId, socket }) {
   const [messages, setMessages] = useState([]);
@@ -9,8 +9,6 @@ export default function ChatDrawer({ isOpen, onClose, requestId, currentUserId, 
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
   useEffect(() => {
     if (!isOpen || !requestId) return;
 
@@ -18,10 +16,7 @@ export default function ChatDrawer({ isOpen, onClose, requestId, currentUserId, 
     const fetchChatHistory = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`${API_URL}/chat/${requestId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await api.get(`/chat/${requestId}`);
         setMessages(res.data.messages || []);
       } catch (err) {
         console.error('Failed to fetch chat history:', err);
@@ -76,12 +71,7 @@ export default function ChatDrawer({ isOpen, onClose, requestId, currentUserId, 
       });
     } else {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.post(
-          `${API_URL}/chat/${requestId}`,
-          { message: messageText },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const res = await api.post(`/chat/${requestId}`, { message: messageText });
         setMessages((prev) => [...prev, res.data]);
       } catch (err) {
         console.error('Failed to send message via REST:', err);

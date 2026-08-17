@@ -1,11 +1,25 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import api from '../utils/api';
 
-const AuthContext = createContext();
+const defaultAuthValue = {
+  user: null,
+  token: null,
+  loading: false,
+  login: async () => {},
+  register: async () => {},
+  logout: () => {},
+  demoLogin: async () => {},
+  fetchCurrentUser: async () => {}
+};
+
+const AuthContext = createContext(defaultAuthValue);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('borrow_token') || null);
+  const [token, setToken] = useState(() => {
+    const savedToken = localStorage.getItem('borrow_token') || localStorage.getItem('token');
+    return savedToken && savedToken !== 'undefined' && savedToken !== 'null' ? savedToken : null;
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,24 +43,35 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const saveToken = (authToken) => {
+    if (authToken) {
+      localStorage.setItem('borrow_token', authToken);
+      localStorage.setItem('token', authToken);
+      setToken(authToken);
+    }
+  };
+
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
-    localStorage.setItem('borrow_token', data.token);
-    setToken(data.token);
+    if (data.require2FA) return data;
+    
+    const authToken = data.accessToken || data.token;
+    saveToken(authToken);
     setUser(data.user);
     return data;
   };
 
   const register = async (formData) => {
     const { data } = await api.post('/auth/register', formData);
-    localStorage.setItem('borrow_token', data.token);
-    setToken(data.token);
+    const authToken = data.accessToken || data.token;
+    saveToken(authToken);
     setUser(data.user);
     return data;
   };
 
   const logout = () => {
     localStorage.removeItem('borrow_token');
+    localStorage.removeItem('token');
     setToken(null);
     setUser(null);
   };
@@ -63,4 +88,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  return context || defaultAuthValue;
+};

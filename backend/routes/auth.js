@@ -18,6 +18,7 @@ const router = express.Router();
 router.post('/register', authLimiter, validateRequest(registerSchema), register);
 router.post('/login', authLimiter, validateRequest(loginSchema), login);
 router.post('/refresh-token', refreshToken);
+router.post('/refresh', refreshToken);
 router.post('/logout', logout);
 
 // 2FA endpoints

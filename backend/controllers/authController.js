@@ -101,6 +101,7 @@ exports.register = async (req, res) => {
       return res.status(201).json({
         message: 'Registration successful',
         accessToken,
+        token: accessToken,
         user: formatUserResponse(user)
       });
     } else {
@@ -150,6 +151,7 @@ exports.register = async (req, res) => {
       return res.status(201).json({
         message: 'Registration successful',
         accessToken,
+        token: accessToken,
         user: formatUserResponse(newUser)
       });
     }
@@ -194,6 +196,7 @@ exports.login = async (req, res) => {
       return res.json({
         message: 'Login successful',
         accessToken,
+        token: accessToken,
         user: formatUserResponse(user)
       });
     } else {
@@ -212,6 +215,7 @@ exports.login = async (req, res) => {
       return res.json({
         message: 'Login successful',
         accessToken,
+        token: accessToken,
         user: formatUserResponse(user)
       });
     }
@@ -258,12 +262,13 @@ exports.refreshToken = async (req, res) => {
 
       return res.json({
         accessToken,
+        token: accessToken,
         user: formatUserResponse(user)
       });
     } else {
       const { accessToken, refreshToken: newRefreshToken } = generateTokens({ _id: decoded.userId, email: decoded.email });
       setRefreshTokenCookie(res, newRefreshToken);
-      return res.json({ accessToken });
+      return res.json({ accessToken, token: accessToken });
     }
   } catch (error) {
     res.status(500).json({ message: 'Refresh token process failed', error: error.message });
@@ -388,6 +393,7 @@ exports.authenticate2FA = async (req, res) => {
       return res.json({
         message: '2FA Authentication successful',
         accessToken,
+        token: accessToken,
         user: formatUserResponse(user)
       });
     } else {

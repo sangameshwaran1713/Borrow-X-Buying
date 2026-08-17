@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, ShieldCheck, Key, Copy, Check } from 'lucide-react';
-import axios from 'axios';
+import api from '../utils/api';
 
 export default function TwoFactorModal({ isOpen, onClose }) {
   const [step, setStep] = useState(1); // 1: Setup QR, 2: Verify Code, 3: Recovery Codes
@@ -12,16 +12,11 @@ export default function TwoFactorModal({ isOpen, onClose }) {
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
   const handleInitSetup = async () => {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.post(`${API_URL}/auth/2fa/setup`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.post('/auth/2fa/setup');
       setQrCodeUrl(res.data.qrCodeUrl);
       setSecret(res.data.secret);
       setStep(1);
@@ -37,10 +32,7 @@ export default function TwoFactorModal({ isOpen, onClose }) {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.post(`${API_URL}/auth/2fa/verify`, { token: totpToken }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.post('/auth/2fa/verify', { token: totpToken });
       setRecoveryCodes(res.data.recoveryCodes || []);
       setStep(3);
     } catch (err) {
