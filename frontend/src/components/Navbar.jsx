@@ -1,17 +1,67 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { PlusCircle, Search, Layers, Repeat, ShieldCheck, User as UserIcon, LogOut, Sparkles } from 'lucide-react';
+import { PlusCircle, Search, Layers, Repeat, ShieldCheck, User as UserIcon, LogOut, Sparkles, MapPin, Navigation } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
 import ThemeToggle from './ThemeToggle';
+import api from '../utils/api';
 
 export default function Navbar({ onOpenAuthModal }) {
-  const { user, logout, demoLogin } = useAuth();
+  const { user, logout, demoLogin, fetchCurrentUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [syncingLoc, setSyncingLoc] = useState(false);
 
   const isActive = (path) => location.pathname === path;
+
+  const syncNavbarLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+    setSyncingLoc(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        let placeName = `GPS Verified (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          if (res.ok) {
+            const geoData = await res.json();
+            const neighborhood = geoData.address?.suburb || geoData.address?.neighbourhood || geoData.address?.residential || geoData.address?.city || geoData.address?.town;
+            if (neighborhood) {
+              placeName = `${neighborhood} (${latitude.toFixed(2)}, ${longitude.toFixed(2)})`;
+            }
+          }
+        } catch (e) {
+          // Fallback to coords
+        }
+
+        try {
+          await api.put('/auth/location', {
+            address: placeName,
+            coordinates: { latitude, longitude, isLiveGPS: true }
+          });
+          if (fetchCurrentUser) {
+            await fetchCurrentUser();
+          }
+        } catch (err) {
+          console.error('Failed to sync location:', err);
+        } finally {
+          setSyncingLoc(false);
+        }
+      },
+      (err) => {
+        console.error('GPS error:', err);
+        alert('Failed to detect GPS location. Please allow browser location permissions.');
+        setSyncingLoc(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
 
   return (
     <nav className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 transition-colors duration-200">
@@ -72,6 +122,22 @@ export default function Navbar({ onOpenAuthModal }) {
 
           {/* Action Buttons & Controls */}
           <div className="flex items-center space-x-3">
+            
+            {/* Live GPS Location Sync Pill */}
+            {user && (
+              <button
+                onClick={syncNavbarLocation}
+                disabled={syncingLoc}
+                className="hidden sm:flex items-center space-x-1.5 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800 text-xs font-semibold transition-all"
+                title="Click to detect & update live GPS location"
+              >
+                <Navigation className={`w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 ${syncingLoc ? 'animate-spin' : ''}`} />
+                <span className="max-w-[140px] truncate">
+                  {syncingLoc ? 'Locating...' : (user.location?.address || '📍 Detect Location')}
+                </span>
+              </button>
+            )}
+
             <ThemeToggle />
 
             <Link
@@ -112,6 +178,17 @@ export default function Navbar({ onOpenAuthModal }) {
                           </span>
                         </div>
                       </div>
+
+                      <button
+                        onClick={() => {
+                          setShowProfileMenu(false);
+                          syncNavbarLocation();
+                        }}
+                        className="w-full flex items-center space-x-2 px-4 py-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950 text-left"
+                      >
+                        <Navigation className="w-4 h-4" />
+                        <span>📍 Update Live Location</span>
+                      </button>
 
                       <Link
                         to="/profile"

@@ -7,7 +7,9 @@ const {
   setup2FA,
   verify2FA,
   authenticate2FA,
-  getMe
+  getMe,
+  updateLocation,
+  updateProfile
 } = require('../controllers/authController');
 const { verifyToken } = require('../middleware/auth');
 const { authLimiter } = require('../middleware/rateLimiter');
@@ -26,7 +28,11 @@ router.post('/2fa/setup', verifyToken, setup2FA);
 router.post('/2fa/verify', verifyToken, validateRequest(verify2FASchema), verify2FA);
 router.post('/2fa/authenticate', authLimiter, validateRequest(verify2FASchema), authenticate2FA);
 
-// User Profile endpoint
+// User Profile & Location endpoints
 router.get('/me', verifyToken, getMe);
+router.put('/location', verifyToken, updateLocation);
+router.put('/profile', verifyToken, updateProfile);
+router.put('/me', verifyToken, updateProfile);
+router.put('/update-profile', verifyToken, updateProfile);
 
 module.exports = router;
