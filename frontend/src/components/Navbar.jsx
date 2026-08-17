@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { PlusCircle, Search, Layers, Repeat, ShieldCheck, User as UserIcon, LogOut, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
+import ThemeToggle from './ThemeToggle';
 
 export default function Navbar({ onOpenAuthModal }) {
   const { user, logout, demoLogin } = useAuth();
@@ -13,7 +14,7 @@ export default function Navbar({ onOpenAuthModal }) {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="bg-white/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40">
+    <nav className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           
@@ -23,7 +24,7 @@ export default function Navbar({ onOpenAuthModal }) {
               <ShieldCheck className="w-6 h-6 text-white" />
             </div>
             <div>
-              <span className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-primary-700 to-secondary-700">
+              <span className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-primary-700 to-secondary-700 dark:from-white dark:via-primary-400 dark:to-secondary-400">
                 Borrow
               </span>
               <span className="text-xs block text-slate-400 font-medium -mt-1">Instead of Buy</span>
@@ -36,8 +37,8 @@ export default function Navbar({ onOpenAuthModal }) {
               to="/explore"
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center space-x-2 ${
                 isActive('/explore')
-                  ? 'bg-primary-50 text-primary-600 font-semibold'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-600 dark:text-primary-400 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
               <Search className="w-4 h-4" />
@@ -48,8 +49,8 @@ export default function Navbar({ onOpenAuthModal }) {
               to="/requests"
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center space-x-2 ${
                 isActive('/requests')
-                  ? 'bg-primary-50 text-primary-600 font-semibold'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-600 dark:text-primary-400 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
               <Repeat className="w-4 h-4" />
@@ -60,8 +61,8 @@ export default function Navbar({ onOpenAuthModal }) {
               to="/my-items"
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center space-x-2 ${
                 isActive('/my-items')
-                  ? 'bg-primary-50 text-primary-600 font-semibold'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-600 dark:text-primary-400 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
               <Layers className="w-4 h-4" />
@@ -69,8 +70,10 @@ export default function Navbar({ onOpenAuthModal }) {
             </Link>
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons & Controls */}
           <div className="flex items-center space-x-3">
+            <ThemeToggle />
+
             <Link
               to="/add-item"
               className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-primary-600 to-secondary-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-primary-500/25 transition-all active:scale-95"
@@ -87,7 +90,7 @@ export default function Navbar({ onOpenAuthModal }) {
                 <div className="relative">
                   <button
                     onClick={() => setShowProfileMenu(!showProfileMenu)}
-                    className="flex items-center space-x-2 p-1 rounded-full border-2 border-primary-100 hover:border-primary-500 transition-colors"
+                    className="flex items-center space-x-2 p-1 rounded-full border-2 border-primary-100 dark:border-primary-900 hover:border-primary-500 transition-colors"
                   >
                     <img
                       src={user.profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80'}
@@ -97,14 +100,14 @@ export default function Navbar({ onOpenAuthModal }) {
                   </button>
 
                   {showProfileMenu && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                      <div className="px-4 py-2.5 border-b border-slate-100">
-                        <p className="text-sm font-semibold text-slate-900">
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-700">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
                           {user.firstName} {user.lastName}
                         </p>
-                        <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
                         <div className="mt-1.5 flex items-center space-x-1.5">
-                          <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">
+                          <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full font-bold">
                             Trust Score: {user.trustScore?.overall || 85}%
                           </span>
                         </div>
@@ -113,10 +116,10 @@ export default function Navbar({ onOpenAuthModal }) {
                       <Link
                         to="/profile"
                         onClick={() => setShowProfileMenu(false)}
-                        className="flex items-center space-x-2 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                        className="flex items-center space-x-2 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
                       >
                         <UserIcon className="w-4 h-4 text-slate-400" />
-                        <span>My Profile & Score</span>
+                        <span>My Profile & Security</span>
                       </Link>
 
                       <button
@@ -124,7 +127,7 @@ export default function Navbar({ onOpenAuthModal }) {
                           setShowProfileMenu(false);
                           logout();
                         }}
-                        className="w-full flex items-center space-x-2 px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 text-left"
+                        className="w-full flex items-center space-x-2 px-4 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 text-left"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Log Out</span>
@@ -137,7 +140,7 @@ export default function Navbar({ onOpenAuthModal }) {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => demoLogin('alex@example.com')}
-                  className="hidden lg:flex items-center space-x-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl transition-all"
+                  className="hidden lg:flex items-center space-x-1 text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-xl transition-all"
                   title="Quick Log in as Alex Morgan (Demo)"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -145,7 +148,7 @@ export default function Navbar({ onOpenAuthModal }) {
                 </button>
                 <button
                   onClick={onOpenAuthModal}
-                  className="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-colors"
+                  className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
                 >
                   Sign In / Up
                 </button>

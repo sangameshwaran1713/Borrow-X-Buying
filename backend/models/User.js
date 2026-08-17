@@ -28,6 +28,13 @@ const userSchema = new mongoose.Schema({
   joinedAt: { type: Date, default: Date.now },
   lastActive: { type: Date, default: Date.now },
   isVerified: { type: Boolean, default: true },
+  verificationTier: { type: Number, default: 1 }, // Tier 0, 1, 2, 3
+  isIdVerified: { type: Boolean, default: false },
+  badges: [{ type: String }], // e.g. ['Verified Neighbor', 'Top Lender', 'Punctual Borrower']
+  twoFactorEnabled: { type: Boolean, default: false },
+  twoFactorSecret: { type: String, default: null },
+  recoveryCodes: [{ type: String }],
+  refreshToken: { type: String, default: null },
   blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
@@ -51,3 +58,4 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 };
 
 module.exports = mongoose.model('User', userSchema);
+

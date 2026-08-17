@@ -1,0 +1,174 @@
+import React, { useState } from 'react';
+import { X, ShieldCheck, Key, Copy, Check } from 'lucide-react';
+import axios from 'axios';
+
+export default function TwoFactorModal({ isOpen, onClose }) {
+  const [step, setStep] = useState(1); // 1: Setup QR, 2: Verify Code, 3: Recovery Codes
+  const [loading, setLoading] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [secret, setSecret] = useState('');
+  const [totpToken, setTotpToken] = useState('');
+  const [recoveryCodes, setRecoveryCodes] = useState([]);
+  const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+  const handleInitSetup = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`${API_URL}/auth/2fa/setup`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setQrCodeUrl(res.data.qrCodeUrl);
+      setSecret(res.data.secret);
+      setStep(1);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to initialize 2FA setup');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerify2FA = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`${API_URL}/auth/2fa/verify`, { token: totpToken }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setRecoveryCodes(res.data.recoveryCodes || []);
+      setStep(3);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid verification code');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyRecoveryCodes = () => {
+    navigator.clipboard.writeText(recoveryCodes.join('\n'));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400">
+            <ShieldCheck className="w-6 h-6" />
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Two-Factor Security</h3>
+          </div>
+          <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {error && (
+          <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 rounded-xl text-xs font-medium">
+            {error}
+          </div>
+        )}
+
+        {/* Step 1: Scan QR Code */}
+        {step === 1 && (
+          <div className="mt-4 text-center">
+            {!qrCodeUrl ? (
+              <div className="py-8">
+                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                  Add an extra layer of security to your Borrow account using Google Authenticator or Authy.
+                </p>
+                <button
+                  onClick={handleInitSetup}
+                  disabled={loading}
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm transition"
+                >
+                  {loading ? 'Generating 2FA Secret...' : 'Begin 2FA Setup'}
+                </button>
+              </div>
+            ) : (
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  Scan this QR code with Google Authenticator or Authy:
+                </p>
+                <div className="flex justify-center my-3 bg-white p-3 rounded-2xl border border-slate-200 inline-block shadow-sm">
+                  <img src={qrCodeUrl} alt="2FA QR Code" className="w-44 h-44" />
+                </div>
+                <p className="text-[11px] font-mono text-slate-400 mb-4">Secret: {secret}</p>
+                <button
+                  onClick={() => setStep(2)}
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm transition"
+                >
+                  Next: Verify Code
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Step 2: Verify Code */}
+        {step === 2 && (
+          <form onSubmit={handleVerify2FA} className="mt-4 space-y-4">
+            <p className="text-xs text-slate-600 dark:text-slate-300 text-center">
+              Enter the 6-digit code generated by your authenticator app:
+            </p>
+            <input
+              type="text"
+              maxLength={6}
+              value={totpToken}
+              onChange={(e) => setTotpToken(e.target.value.replace(/\D/g, ''))}
+              placeholder="000000"
+              className="w-full py-3 text-center text-2xl font-mono tracking-widest bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+            />
+            <button
+              type="submit"
+              disabled={loading || totpToken.length !== 6}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm transition disabled:opacity-50"
+            >
+              {loading ? 'Verifying...' : 'Verify & Enable 2FA'}
+            </button>
+          </form>
+        )}
+
+        {/* Step 3: Emergency Recovery Codes */}
+        {step === 3 && (
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">✅ 2FA Successfully Enabled</span>
+              <button
+                onClick={copyRecoveryCodes}
+                className="flex items-center space-x-1 text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+              >
+                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copied ? 'Copied!' : 'Copy Codes'}</span>
+              </button>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Save these recovery codes in a secure place. If you lose your authenticator device, you can use these to regain access:
+            </p>
+            <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-800 p-3 rounded-xl font-mono text-xs text-slate-800 dark:text-slate-200">
+              {recoveryCodes.map((code, idx) => (
+                <div key={idx} className="p-1 bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700 text-center">
+                  {code}
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={onClose}
+              className="w-full py-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-semibold text-sm transition mt-2"
+            >
+              Done
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

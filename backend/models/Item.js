@@ -24,10 +24,12 @@ const itemSchema = new mongoose.Schema({
   },
   availability: {
     available: { type: Boolean, default: true },
-    calendar: [{
-      date: { type: Date },
-      isAvailable: { type: Boolean, default: true }
-    }]
+    blackoutDates: [{
+      start: { type: Date },
+      end: { type: Date }
+    }],
+    bufferHours: { type: Number, default: 12 },
+    maxBorrowDays: { type: Number, default: 14 }
   },
   rentalPrice: {
     amount: { type: Number, required: true, default: 0 },

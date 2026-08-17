@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const { verifyToken } = require('../middleware/auth');
+const { cacheMiddleware } = require('../middleware/cache');
 const {
   createItem,
   getNearbyItems,
@@ -15,11 +16,14 @@ const {
 const upload = multer({ dest: 'uploads/' });
 const router = express.Router();
 
+// Cached public search and availability endpoints (300 seconds TTL)
+router.get('/nearby', cacheMiddleware(300), getNearbyItems);
+router.get('/availability/:itemId', cacheMiddleware(300), getItemAvailability);
+
+// Authenticated item routes
 router.post('/', verifyToken, upload.array('images', 5), createItem);
-router.get('/nearby', getNearbyItems);
 router.get('/my-items', verifyToken, getUserItems);
-router.get('/availability/:itemId', getItemAvailability);
-router.get('/:id', getItemById);
+router.get('/:id', cacheMiddleware(180), getItemById);
 router.put('/:id', verifyToken, updateItem);
 router.delete('/:id', verifyToken, deleteItem);
 
