@@ -4,6 +4,9 @@ import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import TrustScore from '../components/TrustScore';
 import TwoFactorModal from '../components/TwoFactorModal';
+import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
+import Card from '../components/ui/Card';
 
 export default function Profile({ onOpenAuthModal }) {
   const { user, fetchCurrentUser } = useAuth();
@@ -63,7 +66,7 @@ export default function Profile({ onOpenAuthModal }) {
             }
           }
         } catch (e) {
-          // Fallback to coordinates string
+          // Fallback
         }
 
         try {
@@ -117,7 +120,7 @@ export default function Profile({ onOpenAuthModal }) {
       setNewAvatarUrl('');
     } catch (err) {
       console.error('Avatar Update Error:', err);
-      alert(err.response?.data?.message || err.message || 'Failed to update profile photo. Please restart backend server.');
+      alert(err.response?.data?.message || err.message || 'Failed to update profile photo.');
     } finally {
       setSavingAvatar(false);
     }
@@ -166,14 +169,14 @@ export default function Profile({ onOpenAuthModal }) {
   if (!user) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md w-full text-center shadow-xl border border-slate-100 dark:border-slate-800">
-          <User className="w-12 h-12 text-primary-500 mx-auto mb-3" />
-          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">User Profile & Trust Badge</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">Sign in to view your borrowability score & reviews</p>
-          <button onClick={onOpenAuthModal} className="w-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold py-3 rounded-xl text-xs">
+        <Card className="max-w-md w-full text-center space-y-4">
+          <User className="w-12 h-12 text-teal-500 mx-auto" />
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white">User Profile & Trust Badge</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Sign in to view your borrowability score & community feedback</p>
+          <Button onClick={onOpenAuthModal} variant="primary" className="w-full">
             Sign In / Register
-          </button>
-        </div>
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -190,53 +193,53 @@ export default function Profile({ onOpenAuthModal }) {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Profile Header */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
+        <Card hoverEffect={false} className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
           
           <div className="relative group shrink-0">
             <img
               src={user.profileImage || `https://api.dicebear.com/7.x/initials/svg?seed=${user.firstName}+${user.lastName}`}
               alt={user.firstName}
-              className="w-24 h-24 rounded-3xl object-cover border-4 border-primary-100 dark:border-primary-950 shadow-md"
+              className="w-24 h-24 rounded-3xl object-cover border-4 border-teal-100 dark:border-teal-950 shadow-elevation-2"
             />
             <button
               onClick={() => setIsAvatarModalOpen(true)}
-              className="absolute inset-0 bg-black/40 rounded-3xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute inset-0 bg-black/50 rounded-3xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
               title="Change Profile Photo"
             >
-              <Camera className="w-6 h-6" />
+              <Camera className="w-6 h-6 text-teal-400" />
             </button>
           </div>
 
-          <div className="flex-1">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
-              <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">
+          <div className="flex-1 space-y-3">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                 {user.firstName} {user.lastName}
               </h1>
-              <span className="bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-3 py-0.5 rounded-full text-xs font-bold border border-emerald-200 dark:border-emerald-800 flex items-center space-x-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Tier {user.verificationTier || 1} Verified</span>
-              </span>
+              <Badge variant="teal" icon={ShieldCheck}>
+                Tier {user.verificationTier || 1} Verified
+              </Badge>
               {(user.badges || ['Verified Neighbor']).map((badge, idx) => (
-                <span key={idx} className="bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                <Badge key={idx} variant="primary">
                   {badge}
-                </span>
+                </Badge>
               ))}
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed mb-4">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed">
               {user.bio || 'Active neighborhood lender & borrower.'}
             </p>
 
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-600 dark:text-slate-300 font-semibold">
+            {/* Quick Info Grid */}
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-600 dark:text-slate-300 font-semibold pt-1">
               <div className="flex items-center space-x-2">
-                <span className="flex items-center space-x-1">
-                  <MapPin className="w-4 h-4 text-primary-500" />
+                <span className="flex items-center space-x-1 text-slate-700 dark:text-slate-200">
+                  <MapPin className="w-4 h-4 text-teal-500" />
                   <span>{user.location?.address || 'Neighborhood Block'}</span>
                 </span>
                 <button
                   onClick={handleUpdateLiveLocation}
                   disabled={updatingLocation}
-                  className="inline-flex items-center space-x-1 bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 hover:bg-primary-100 px-2.5 py-1 rounded-xl border border-primary-200 dark:border-primary-800 text-[11px] font-bold transition-all shadow-sm"
+                  className="inline-flex items-center space-x-1 bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 hover:bg-teal-100 px-2.5 py-1 rounded-xl border border-teal-200 dark:border-teal-800 text-[11px] font-bold transition-all shadow-xs"
                 >
                   <Navigation className={`w-3 h-3 ${updatingLocation ? 'animate-spin' : ''}`} />
                   <span>{updatingLocation ? 'Locating...' : '📍 Sync Live GPS'}</span>
@@ -255,57 +258,59 @@ export default function Profile({ onOpenAuthModal }) {
             </div>
 
             {locationStatus && (
-              <div className="mt-2 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-3 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800 inline-block">
+              <div className="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/50 px-3 py-1 rounded-lg border border-teal-200 dark:border-teal-800 inline-block">
                 {locationStatus}
               </div>
             )}
           </div>
 
-          <div className="flex flex-col items-center space-y-2 shrink-0">
-            <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 text-center min-w-[130px]">
-              <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Member Since</span>
-              <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">
+          <div className="flex flex-col items-center space-y-3 shrink-0">
+            <div className="bg-slate-50 dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 text-center min-w-[140px]">
+              <span className="text-[10px] font-black text-slate-400 block uppercase tracking-widest">Member Since</span>
+              <span className="text-xs font-black text-slate-800 dark:text-slate-200">
                 {new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
               </span>
             </div>
 
-            <button
+            <Button
               onClick={() => setIs2FAModalOpen(true)}
-              className="flex items-center space-x-1.5 px-3 py-2 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-400 text-xs font-semibold rounded-xl transition border border-indigo-100 dark:border-indigo-900"
+              variant="ghost"
+              size="sm"
+              icon={Lock}
+              className="w-full text-xs"
             >
-              <Lock className="w-3.5 h-3.5" />
-              <span>{user.twoFactorEnabled ? '2FA Active' : 'Enable 2FA'}</span>
-            </button>
+              {user.twoFactorEnabled ? '2FA Active' : 'Enable 2FA'}
+            </Button>
           </div>
 
-        </div>
+        </Card>
 
         {/* Dynamic Trust Score Component */}
         <TrustScore trustScore={user.trustScore} />
 
         {/* Reviews Received Section */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-800">
+        <Card hoverEffect={false}>
           <div className="flex items-center space-x-2 mb-6">
             <Star className="w-5 h-5 text-amber-500 fill-amber-400" />
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Community Feedback & Reviews</h3>
+            <h3 className="text-xl font-black text-slate-900 dark:text-white">Community Feedback & Reviews</h3>
           </div>
 
           {reviews.length === 0 ? (
-            <div className="p-8 text-center bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
+            <div className="p-8 text-center bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
               No reviews recorded yet for completed transactions.
             </div>
           ) : (
             <div className="space-y-4">
               {reviews.map((rev) => (
-                <div key={rev._id} className="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 text-xs">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-bold text-slate-900 dark:text-white">Verified Borrow Transaction</span>
-                    <span className="text-[10px] text-slate-400">
+                <div key={rev._id} className="p-4 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700/60 text-xs space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-extrabold text-slate-900 dark:text-white">Verified Borrow Transaction</span>
+                    <span className="text-[10px] text-slate-400 font-semibold">
                       {new Date(rev.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed italic mb-2">"{rev.comment || 'Smooth transaction and great item condition.'}"</p>
-                  <div className="flex items-center space-x-3 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed italic">"{rev.comment || 'Smooth transaction and great item condition.'}"</p>
+                  <div className="flex items-center space-x-3 text-[11px] font-bold text-slate-500 dark:text-slate-400 pt-1">
                     <span>Comm: {rev.ratings?.communication}/5 ⭐</span>
                     <span>Item: {rev.ratings?.itemAccuracy}/5 ⭐</span>
                     <span>Trust: {rev.ratings?.reliability}/5 ⭐</span>
@@ -314,7 +319,7 @@ export default function Profile({ onOpenAuthModal }) {
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
       </div>
 
@@ -326,10 +331,10 @@ export default function Profile({ onOpenAuthModal }) {
       {/* Avatar Change Modal */}
       {isAvatarModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-elevation-4 border border-slate-100 dark:border-slate-800">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-                <Camera className="w-5 h-5 text-primary-500" />
+              <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center space-x-2">
+                <Camera className="w-5 h-5 text-teal-500" />
                 <span>Update Profile Picture</span>
               </h3>
               <button onClick={() => setIsAvatarModalOpen(false)} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -339,21 +344,21 @@ export default function Profile({ onOpenAuthModal }) {
 
             <div className="my-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
                   Upload Photo from Device
                 </label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleFileChange}
-                  className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                  className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
                 />
               </div>
 
               <div className="relative flex py-2 items-center">
-                <div className="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-                <span className="flex-shrink mx-4 text-xs font-semibold text-slate-400">Or Select Avatar</span>
-                <div className="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                <span className="flex-shrink mx-4 text-xs font-bold text-slate-400">Or Select Avatar</span>
+                <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
               </div>
 
               <div className="grid grid-cols-4 gap-3">
@@ -361,7 +366,7 @@ export default function Profile({ onOpenAuthModal }) {
                   <button
                     key={i}
                     onClick={() => handleSaveAvatar(imgUrl)}
-                    className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 hover:border-primary-500 transition-all hover:scale-105"
+                    className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 hover:border-teal-500 transition-all hover:scale-105"
                   >
                     <img src={imgUrl} alt={`Preset ${i}`} className="w-full h-full object-cover" />
                   </button>
@@ -369,7 +374,7 @@ export default function Profile({ onOpenAuthModal }) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Or Paste Custom Image URL
                 </label>
                 <div className="flex space-x-2">
@@ -380,23 +385,25 @@ export default function Profile({ onOpenAuthModal }) {
                     placeholder="https://example.com/photo.jpg"
                     className="flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs text-slate-900 dark:text-white"
                   />
-                  <button
+                  <Button
                     onClick={() => handleSaveAvatar(newAvatarUrl)}
                     disabled={savingAvatar || !newAvatarUrl.trim()}
-                    className="px-4 py-2 bg-primary-600 text-white font-bold rounded-xl text-xs hover:bg-primary-700 disabled:opacity-50"
+                    variant="primary"
+                    size="sm"
                   >
                     {savingAvatar ? 'Saving...' : 'Save'}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
 
-            <button
+            <Button
               onClick={() => setIsAvatarModalOpen(false)}
-              className="w-full py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs"
+              variant="ghost"
+              className="w-full"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}
